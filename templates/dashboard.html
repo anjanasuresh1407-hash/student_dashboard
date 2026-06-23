@@ -2,104 +2,206 @@
 {% block title %}Dashboard{% endblock %}
 {% block page_title %}Dashboard{% endblock %}
 {% block content %}
+
+
+<!-- Stats Grid -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon blue"><i class="ti ti-checkbox"></i></div>
+    <div class="stat-info">
+      <span class="stat-value">{{ tasks|length }}</span>
+      <span class="stat-label">Pending Tasks</span>
+    </div>
+  </div>
+  
+  <div class="stat-card">
+    <div class="stat-icon purple"><i class="ti ti-calendar-event"></i></div>
+    <div class="stat-info">
+      <span class="stat-value">{{ exams|length }}</span>
+      <span class="stat-label">Upcoming Exams</span>
+    </div>
+  </div>
+  
+  <div class="stat-card">
+    <div class="stat-icon teal"><i class="ti ti-notebook"></i></div>
+    <div class="stat-info">
+      <span class="stat-value">{{ today_plans|length }}</span>
+      <span class="stat-label">Today's Sessions</span>
+    </div>
+  </div>
+  
+  <div class="stat-card">
+    <div class="stat-icon red"><i class="ti ti-alert-triangle"></i></div>
+    <div class="stat-info">
+      <span class="stat-value">{{ urgent_tasks|length + urgent_exams|length }}</span>
+      <span class="stat-label">Urgent Deadlines</span>
+    </div>
+  </div>
+</div>
+
+<!-- Main Dashboard Widgets -->
 <div class="dashboard-grid">
-  <div class="card">
-    <div class="card-title"><i class="ti ti-bell"></i> Reminders</div>
+  <!-- Reminders / Alerts -->
+  <div class="card" style="grid-column: 1 / -1;">
+    <div class="card-title"><i class="ti ti-bell"></i> Critical Deadlines</div>
     {% if urgent_tasks or urgent_exams %}
       {% for task in urgent_tasks %}
-        <div class="alert alert-amber">{{ task.title }} due {{ task.deadline.strftime('%a, %d %b %Y at %I:%M %p') }}</div>
+        <div class="alert alert-amber">
+          <i class="ti ti-alert-circle"></i>
+          <div>
+            <strong>Task Due Soon:</strong> {{ task.title }} (due {{ task.deadline.strftime('%a, %d %b at %I:%M %p') }})
+          </div>
+        </div>
       {% endfor %}
       {% for exam in urgent_exams %}
-        <div class="alert alert-red">{{ exam.subject }} exam on {{ exam.exam_date.strftime('%a, %d %b %Y at %I:%M %p') }}</div>
+        <div class="alert alert-red">
+          <i class="ti ti-alert-triangle"></i>
+          <div>
+            <strong>Upcoming Exam:</strong> {{ exam.subject }} (on {{ exam.exam_date.strftime('%a, %d %b at %I:%M %p') }})
+          </div>
+        </div>
       {% endfor %}
     {% else %}
-      <div class="alert alert-green">You're all clear — no urgent deadlines!</div>
+      <div class="alert alert-green">
+        <i class="ti ti-circle-check"></i>
+        <span>All clear! You have no urgent deadlines in the next few days.</span>
+      </div>
     {% endif %}
   </div>
 
+  <!-- Upcoming Tasks -->
   <div class="card">
-    <div class="card-title"><i class="ti ti-checkbox"></i> Upcoming Tasks</div>
+    <div class="card-title"><i class="ti ti-list-check"></i> Upcoming Tasks</div>
     {% if tasks %}
-      <table>
-        <thead>
-          <tr><th>Title</th><th>Deadline</th><th>Priority</th></tr>
-        </thead>
-        <tbody>
-          {% for task in tasks[:5] %}
+      <div class="table-responsive">
+        <table>
+          <thead>
             <tr>
-              <td>{{ task.title }}</td>
-              <td>{{ task.deadline.strftime('%a, %d %b %Y at %I:%M %p') }}</td>
-              <td>
-                <span class="badge badge-{{ 'red' if task.priority == 'high' else 'amber' if task.priority == 'medium' else 'green' }}">{{ task.priority.title() }}</span>
-              </td>
+              <th>Title</th>
+              <th>Deadline</th>
+              <th>Priority</th>
             </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {% for task in tasks[:5] %}
+              <tr>
+                <td style="font-weight: 500; color: #fff;">{{ task.title }}</td>
+                <td style="font-size: 13px;">{{ task.deadline.strftime('%a, %d %b - %I:%M %p') }}</td>
+                <td>
+                  <span class="badge badge-{{ 'red' if task.priority == 'high' else 'amber' if task.priority == 'medium' else 'green' }}">
+                    {{ task.priority }}
+                  </span>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     {% else %}
-      <div class="empty-state"><p>No pending tasks yet.</p></div>
+      <div class="empty-state">
+        <i class="ti ti-circle-check"></i>
+        <p>No pending tasks yet.</p>
+      </div>
     {% endif %}
-    <div style="margin-top:12px;"><a class="btn btn-primary" href="{{ url_for('tasks_view') }}">View all tasks →</a></div>
+    <div style="margin-top: 20px;">
+      <a class="btn btn-primary btn-sm" href="{{ url_for('tasks_view') }}">View all tasks <i class="ti ti-arrow-right"></i></a>
+    </div>
   </div>
 
+  <!-- Exam Schedule -->
   <div class="card">
     <div class="card-title"><i class="ti ti-calendar-event"></i> Exam Schedule</div>
     {% if exams %}
-      <table>
-        <thead>
-          <tr><th>Subject</th><th>Date</th><th>Days Left</th></tr>
-        </thead>
-        <tbody>
-          {% for exam in exams[:5] %}
-            {% set remaining = (exam.exam_date.date() - today).days %}
+      <div class="table-responsive">
+        <table>
+          <thead>
             <tr>
-              <td>{{ exam.subject }}</td>
-              <td>{{ exam.exam_date.strftime('%a, %d %b %Y at %I:%M %p') }}</td>
-              <td>
-                <span class="badge badge-{{ 'red' if remaining <= 3 else 'amber' if remaining <= 7 else 'green' }}">
-                  {{ remaining }} days
-                </span>
-              </td>
+              <th>Subject</th>
+              <th>Date</th>
+              <th>Days Left</th>
             </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {% for exam in exams[:5] %}
+              {% set remaining = (exam.exam_date.date() - today).days %}
+              <tr>
+                <td style="font-weight: 500; color: #fff;">{{ exam.subject }}</td>
+                <td style="font-size: 13px;">{{ exam.exam_date.strftime('%a, %d %b - %I:%M %p') }}</td>
+                <td>
+                  {% if remaining < 0 %}
+                    <span class="badge badge-gray">Past</span>
+                  {% else %}
+                    <span class="badge badge-{{ 'red' if remaining <= 3 else 'amber' if remaining <= 7 else 'green' }}">
+                      {{ remaining }} days
+                    </span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     {% else %}
-      <div class="empty-state"><p>No exams scheduled yet.</p></div>
+      <div class="empty-state">
+        <i class="ti ti-calendar-stats"></i>
+        <p>No exams scheduled yet.</p>
+      </div>
     {% endif %}
-    <div style="margin-top:12px;"><a class="btn btn-primary" href="{{ url_for('exams_view') }}">View full schedule →</a></div>
+    <div style="margin-top: 20px;">
+      <a class="btn btn-primary btn-sm" href="{{ url_for('exams_view') }}">View full schedule <i class="ti ti-arrow-right"></i></a>
+    </div>
   </div>
 
+  <!-- AI Priority List -->
   <div class="card">
-    <div class="card-title"><i class="ti ti-brain"></i> AI Priority List</div>
-    <button id="ai-btn" class="btn btn-primary">Generate Priority List</button>
+    <div class="card-title"><i class="ti ti-cpu"></i> AI Copilot Priorities</div>
+    <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 16px; line-height: 1.4;">
+      Let our intelligent agent analyze your upcoming tasks and exams to formulate the optimal sequence of study goals.
+    </p>
+    <button id="ai-btn" class="btn btn-primary">
+      <i class="ti ti-sparkles"></i> Generate Priority List
+    </button>
     <div id="ai-spinner" class="spinner"></div>
-    <div id="ai-result" style="margin-top:16px;"></div>
+    <div id="ai-result" style="margin-top: 20px;"></div>
   </div>
 
+  <!-- Today's Study Plan -->
   <div class="card">
     <div class="card-title"><i class="ti ti-notebook"></i> Today's Study Plan</div>
     {% if today_plans %}
-      <table>
-        <thead>
-          <tr><th>Subject</th><th>Activity</th><th>Status</th></tr>
-        </thead>
-        <tbody>
-          {% for plan in today_plans %}
+      <div class="table-responsive">
+        <table>
+          <thead>
             <tr>
-              <td>{{ plan.subject }}</td>
-              <td>{{ plan.activity }}</td>
-              <td>
-                <span class="badge badge-{{ 'green' if plan.completed else 'gray' }}">{{ 'Completed' if plan.completed else 'Pending' }}</span>
-              </td>
+              <th>Subject</th>
+              <th>Activity</th>
+              <th>Status</th>
             </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {% for plan in today_plans %}
+              <tr>
+                <td style="font-weight: 500; color: #fff;">{{ plan.subject }}</td>
+                <td>{{ plan.activity }}</td>
+                <td>
+                  <span class="badge badge-{{ 'green' if plan.completed else 'gray' }}">
+                    {{ 'Completed' if plan.completed else 'Pending' }}
+                  </span>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     {% else %}
-      <div class="empty-state"><p>No study sessions planned for today.</p></div>
+      <div class="empty-state">
+        <i class="ti ti-notebook"></i>
+        <p>No study sessions planned for today.</p>
+      </div>
     {% endif %}
-    <div style="margin-top:12px;"><a class="btn btn-primary" href="{{ url_for('planner_view') }}">Open planner →</a></div>
+    <div style="margin-top: 20px;">
+      <a class="btn btn-primary btn-sm" href="{{ url_for('planner_view') }}">Open planner <i class="ti ti-arrow-right"></i></a>
+    </div>
   </div>
 </div>
 {% endblock %}

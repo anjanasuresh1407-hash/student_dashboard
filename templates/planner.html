@@ -7,51 +7,81 @@
   <form action="{{ url_for('add_study_plan') }}" method="post">
     <div class="form-grid">
       <div class="form-group">
-        <label for="study_date">Date</label>
+        <label for="study_date"><i class="ti ti-calendar" style="font-size:14px;"></i> Date</label>
         <input type="date" id="study_date" name="study_date" required>
       </div>
       <div class="form-group">
-        <label for="subject">Subject</label>
-        <input type="text" id="subject" name="subject" required>
+        <label for="subject"><i class="ti ti-books" style="font-size:14px;"></i> Subject</label>
+        <input type="text" id="subject" name="subject" placeholder="e.g. Calculus" required>
       </div>
       <div class="form-group full-width">
-        <label for="activity">Activity</label>
-        <textarea id="activity" name="activity" required placeholder="e.g. Review Chapter 5, Practice past papers"></textarea>
+        <label for="activity"><i class="ti ti-activity" style="font-size:14px;"></i> Planned Activity</label>
+        <textarea id="activity" name="activity" required placeholder="e.g. Review Chapter 5, Practice 10 past paper questions..."></textarea>
       </div>
     </div>
-    <button type="submit" class="btn btn-primary" style="margin-top:16px;">Add Session</button>
+    <button type="submit" class="btn btn-primary" style="margin-top: 24px;">
+      <i class="ti ti-plus"></i> Add Session
+    </button>
   </form>
 </div>
 
 {% if grouped_plans %}
   {% for study_date, entries in grouped_plans %}
-    <div class="date-header">{{ study_date.strftime('%A, %d %B %Y') }}</div>
+    <div class="date-header">
+      {{ study_date.strftime('%A, %d %B %Y') }}
+    </div>
     <div class="card">
-      <table>
-        <thead>
-          <tr><th>Subject</th><th>Activity</th><th>Progress</th><th>Actions</th></tr>
-        </thead>
-        <tbody>
-          {% for plan in entries %}
+      <div class="table-responsive">
+        <table>
+          <thead>
             <tr>
-              <td>{{ plan.subject }}</td>
-              <td>{{ plan.activity }}</td>
-              <td><span class="badge badge-{{ 'green' if plan.completed else 'gray' }}">{{ 'Completed' if plan.completed else 'Pending' }}</span></td>
-              <td style="display:flex; gap:8px; flex-wrap:wrap;">
-                <form action="{{ url_for('toggle_study_plan', id=plan.id) }}" method="post">
-                  <button type="submit" class="btn btn-green btn-sm">{{ 'Mark Pending' if plan.completed else 'Mark Complete' }}</button>
-                </form>
-                <form action="{{ url_for('delete_study_plan', id=plan.id) }}" method="post">
-                  <button type="submit" class="btn btn-red btn-sm">Delete</button>
-                </form>
-              </td>
+              <th>Subject</th>
+              <th>Activity / Focus Task</th>
+              <th>Progress</th>
+              <th style="text-align:right;">Actions</th>
             </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {% for plan in entries %}
+              <tr>
+                <td style="font-weight:600; color:#fff; width:20%;">{{ plan.subject }}</td>
+                <td>{{ plan.activity }}</td>
+                <td style="width:15%;">
+                  <span class="badge badge-{{ 'green' if plan.completed else 'gray' }}">
+                    {{ 'Completed' if plan.completed else 'Pending' }}
+                  </span>
+                </td>
+                <td style="text-align:right; width:25%;">
+                  <div style="display:inline-flex; gap:8px; justify-content:flex-end;">
+                    <form action="{{ url_for('toggle_study_plan', id=plan.id) }}" method="post" style="display:inline;">
+                      {% if plan.completed %}
+                        <button type="submit" class="btn btn-green btn-sm" title="Mark Pending" style="background:var(--text-muted); box-shadow:none;">
+                          <i class="ti ti-refresh"></i> Undo
+                        </button>
+                      {% else %}
+                        <button type="submit" class="btn btn-green btn-sm" title="Mark Complete">
+                          <i class="ti ti-check"></i> Complete
+                        </button>
+                      {% endif %}
+                    </form>
+                    <form action="{{ url_for('delete_study_plan', id=plan.id) }}" method="post" style="display:inline;">
+                      <button type="submit" class="btn btn-red btn-sm" title="Delete Session">
+                        <i class="ti ti-trash"></i> Delete
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
   {% endfor %}
 {% else %}
-  <div class="empty-state"><i class="ti ti-info-circle"></i><p>No study sessions yet. Add one above!</p></div>
+  <div class="empty-state">
+    <i class="ti ti-info-circle"></i>
+    <p>No study sessions planned. Outline your study schedule using the form above!</p>
+  </div>
 {% endif %}
 {% endblock %}

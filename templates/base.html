@@ -7,34 +7,71 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 </head>
 <body>
-  <aside class="sidebar">
-    <div class="logo"><i class="ti ti-graduation-cap"></i> Student Dashboard</div>
-    <a href="{{ url_for('dashboard') }}" class="nav-link{% if request.path == '/' %} active{% endif %}"><i class="ti ti-layout-dashboard"></i> Dashboard</a>
-    <a href="{{ url_for('tasks_view') }}" class="nav-link{% if request.path.startswith('/tasks') %} active{% endif %}"><i class="ti ti-checkbox"></i> Tasks</a>
-    <a href="{{ url_for('exams_view') }}" class="nav-link{% if request.path.startswith('/exams') %} active{% endif %}"><i class="ti ti-calendar-event"></i> Exams</a>
-    <a href="{{ url_for('planner_view') }}" class="nav-link{% if request.path.startswith('/planner') %} active{% endif %}"><i class="ti ti-notebook"></i> Study Planner</a>
-    <div style="margin-top:auto; color:#94a3b8; font-size:13px;">{{ today.strftime('%A, %d %B %Y') }}</div>
-  </aside>
-  <main class="main">
-    <div class="topbar">
-      <h1>{% block page_title %}Student Dashboard{% endblock %}</h1>
-      <div>{{ now.strftime('%A, %d %B %Y %I:%M %p') }} UTC</div>
-    </div>
-    <div class="content">
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          {% for category, message in messages %}
-            <div class="flash flash-{{ 'success' if category == 'success' else 'error' }}">{{ message }}</div>
-          {% endfor %}
-        {% endif %}
-      {% endwith %}
-      {% block content %}{% endblock %}
-    </div>
-  </main>
+  <div class="app-container">
+    <aside class="sidebar">
+      <div class="logo"><i class="ti ti-graduation-cap"></i> Scholar</div>
+
+
+      <nav class="sidebar-links">
+        <a href="{{ url_for('dashboard') }}" class="nav-link{% if request.path == '/' %} active{% endif %}">
+          <i class="ti ti-layout-dashboard"></i> Dashboard
+        </a>
+        <a href="{{ url_for('tasks_view') }}" class="nav-link{% if request.path.startswith('/tasks') %} active{% endif %}">
+          <i class="ti ti-checkbox"></i> Tasks
+        </a>
+        <a href="{{ url_for('exams_view') }}" class="nav-link{% if request.path.startswith('/exams') %} active{% endif %}">
+          <i class="ti ti-calendar-event"></i> Exams
+        </a>
+        <a href="{{ url_for('planner_view') }}" class="nav-link{% if request.path.startswith('/planner') %} active{% endif %}">
+          <i class="ti ti-notebook"></i> Study Planner
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <i class="ti ti-calendar"></i>
+        <span>{{ today.strftime('%A, %d %B') }}</span>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <h1>{% block page_title %}Dashboard{% endblock %}</h1>
+        <div class="topbar-date">
+          <i class="ti ti-clock"></i>
+          <span>{{ now.strftime('%I:%M %p') }} UTC</span>
+        </div>
+      </div>
+
+      <div class="content">
+        <!-- Flash notifications styled as toast alerts -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="flash-container">
+              {% for category, message in messages %}
+                <div class="flash flash-{{ 'success' if category == 'success' else 'error' }}">
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    {% if category == 'success' %}
+                      <i class="ti ti-circle-check" style="font-size:18px;"></i>
+                    {% else %}
+                      <i class="ti ti-circle-x" style="font-size:18px;"></i>
+                    {% endif %}
+                    <span>{{ message }}</span>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+      </div>
+    </main>
+  </div>
+
   <script src="{{ url_for('static', filename='main.js') }}"></script>
 </body>
 </html>

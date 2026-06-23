@@ -1,68 +1,103 @@
 {% extends 'base.html' %}
 {% block title %}Tasks{% endblock %}
-{% block page_title %}Tasks{% endblock %}
+{% block page_title %}Tasks Management{% endblock %}
 {% block content %}
 <div class="card">
   <div class="card-title"><i class="ti ti-checkbox"></i> Add New Task</div>
   <form action="{{ url_for('add_task') }}" method="post">
     <div class="form-grid">
       <div class="form-group">
-        <label for="title">Task Title</label>
-        <input type="text" id="title" name="title" required>
+        <label for="title"><i class="ti ti-typography" style="font-size:14px;"></i> Task Title</label>
+        <input type="text" id="title" name="title" placeholder="e.g. Finish chemistry project" required>
       </div>
       <div class="form-group">
-        <label for="deadline">Deadline</label>
+        <label for="deadline"><i class="ti ti-alarm" style="font-size:14px;"></i> Deadline</label>
         <input type="datetime-local" id="deadline" name="deadline" required>
       </div>
       <div class="form-group full-width">
-        <label for="description">Description</label>
-        <textarea id="description" name="description"></textarea>
+        <label for="description"><i class="ti ti-note" style="font-size:14px;"></i> Description</label>
+        <textarea id="description" name="description" placeholder="Provide notes or steps to complete the task..."></textarea>
       </div>
       <div class="form-group">
-        <label for="priority">Priority</label>
+        <label for="priority"><i class="ti ti-flag" style="font-size:14px;"></i> Priority Level</label>
         <select id="priority" name="priority">
-          <option value="low">Low</option>
-          <option value="medium" selected>Medium</option>
-          <option value="high">High</option>
+          <option value="low">Low Priority</option>
+          <option value="medium" selected>Medium Priority</option>
+          <option value="high">High Priority</option>
         </select>
       </div>
     </div>
-    <button type="submit" class="btn btn-primary" style="margin-top:16px;">Add Task</button>
+    <button type="submit" class="btn btn-primary" style="margin-top: 24px;">
+      <i class="ti ti-plus"></i> Add Task
+    </button>
   </form>
 </div>
 
 <div class="card">
-  <div class="card-title"><i class="ti ti-list-check"></i> All Tasks <span class="badge badge-blue">{{ tasks|length }}</span></div>
+  <div class="card-title">
+    <div style="display:flex; align-items:center; justify-content:space-between; width:100%;">
+      <div><i class="ti ti-list-check"></i> All Tasks</div>
+      <span class="badge badge-blue">{{ tasks|length }} Total</span>
+    </div>
+  </div>
+  
   {% if tasks %}
-    <table>
-      <thead>
-        <tr><th>#</th><th>Title</th><th>Description</th><th>Deadline</th><th>Priority</th><th>Status</th><th>Actions</th></tr>
-      </thead>
-      <tbody>
-        {% for task in tasks %}
+    <div class="table-responsive">
+      <table>
+        <thead>
           <tr>
-            <td>{{ loop.index }}</td>
-            <td>{{ task.title }}</td>
-            <td>{{ task.description or '-' }}</td>
-            <td>{{ task.deadline.strftime('%a, %d %b %Y at %I:%M %p') }}</td>
-            <td><span class="badge badge-{{ 'red' if task.priority == 'high' else 'amber' if task.priority == 'medium' else 'green' }}">{{ task.priority.title() }}</span></td>
-            <td><span class="badge badge-{{ 'blue' if task.status == 'pending' else 'green' }}">{{ task.status.title() }}</span></td>
-            <td style="display:flex; gap:8px; flex-wrap:wrap;">
-              {% if task.status == 'pending' %}
-                <form action="{{ url_for('complete_task', id=task.id) }}" method="post">
-                  <button type="submit" class="btn btn-green btn-sm">Complete</button>
-                </form>
-              {% endif %}
-              <form action="{{ url_for('delete_task', id=task.id) }}" method="post">
-                <button type="submit" class="btn btn-red btn-sm">Delete</button>
-              </form>
-            </td>
+            <th>#</th>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Deadline</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th style="text-align:right;">Actions</th>
           </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {% for task in tasks %}
+            <tr>
+              <td style="font-weight:600; color:var(--text-muted);">{{ loop.index }}</td>
+              <td style="font-weight:600; color:#fff;">{{ task.title }}</td>
+              <td>{{ task.description or '-' }}</td>
+              <td style="font-size:13px;">{{ task.deadline.strftime('%a, %d %b %Y - %I:%M %p') }}</td>
+              <td>
+                <span class="badge badge-{{ 'red' if task.priority == 'high' else 'amber' if task.priority == 'medium' else 'green' }}">
+                  {{ task.priority }}
+                </span>
+              </td>
+              <td>
+                <span class="badge badge-{{ 'blue' if task.status == 'pending' else 'green' }}">
+                  {{ task.status }}
+                </span>
+              </td>
+              <td style="text-align:right;">
+                <div style="display:inline-flex; gap:8px; justify-content:flex-end;">
+                  {% if task.status == 'pending' %}
+                    <form action="{{ url_for('complete_task', id=task.id) }}" method="post" style="display:inline;">
+                      <button type="submit" class="btn btn-green btn-sm" title="Mark Complete">
+                        <i class="ti ti-check"></i> Complete
+                      </button>
+                    </form>
+                  {% endif %}
+                  <form action="{{ url_for('delete_task', id=task.id) }}" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-red btn-sm" title="Delete Task">
+                      <i class="ti ti-trash"></i> Delete
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   {% else %}
-    <div class="empty-state"><i class="ti ti-info-circle"></i><p>No tasks yet. Add one above!</p></div>
+    <div class="empty-state">
+      <i class="ti ti-clipboard-list"></i>
+      <p>No tasks yet. Create your first task using the form above!</p>
+    </div>
   {% endif %}
 </div>
 {% endblock %}
