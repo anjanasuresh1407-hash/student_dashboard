@@ -1,4 +1,0 @@
-flask
-flask-sqlalchemy
-anthropic
-python-dotenv
