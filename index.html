@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aura AI — Intelligent Student Dashboard</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dark-theme">
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar glass">
+            <div class="sidebar-brand">
+                <div class="logo-glow"></div>
+                <i data-lucide="sparkles" class="brand-icon"></i>
+                <span class="brand-text">Aura <span class="accent-text">AI</span></span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="nav-item active" data-tab="dashboard">
+                        <i data-lucide="layout-dashboard"></i>
+                        <span>Dashboard</span>
+                    </li>
+                    <li class="nav-item" data-tab="tasks">
+                        <i data-lucide="check-square"></i>
+                        <span>Priority Matrix</span>
+                    </li>
+                    <li class="nav-item" data-tab="calendar">
+                        <i data-lucide="calendar"></i>
+                        <span>Planner</span>
+                    </li>
+                    <li class="nav-item" data-tab="focus">
+                        <i data-lucide="hourglass"></i>
+                        <span>Focus Room</span>
+                    </li>
+                    <li class="nav-item" data-tab="analytics">
+                        <i data-lucide="bar-chart-2"></i>
+                        <span>Analytics</span>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="sidebar-user glass-card">
+                <div class="avatar-container">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=256&auto=format&fit=crop" alt="Student Profile" class="avatar">
+                    <span class="status-indicator online"></span>
+                </div>
+                <div class="user-info">
+                    <h4 class="user-name">Alex Rivera</h4>
+                    <p class="user-meta">B.S. Computer Science</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header Bar -->
+            <header class="main-header glass">
+                <div class="header-welcome">
+                    <h1 class="welcome-title">Welcome back, <span class="user-highlight">Alex</span></h1>
+                    <p class="current-date" id="live-date">Wednesday, June 24, 2026</p>
+                </div>
+                
+                <div class="header-actions">
+                    <!-- Cognitive Load Gauge Widget -->
+                    <div class="cognitive-load-widget glass-card" id="cognitive-load-btn" title="AI analyzed cognitive stress level">
+                        <div class="gauge-label">
+                            <span class="label-text">AI Cognitive Load</span>
+                            <span class="gauge-value" id="cognitive-load-val">42%</span>
+                        </div>
+                        <div class="gauge-track">
+                            <div class="gauge-fill" id="cognitive-load-fill" style="width: 42%;"></div>
+                        </div>
+                        <span class="load-badge optimal" id="cognitive-load-badge">Optimal</span>
+                    </div>
+
+                    <!-- AI Status Indicator -->
+                    <button class="icon-btn notification-btn glass-btn" id="copilot-toggle" title="Toggle Aura AI Copilot">
+                        <i data-lucide="bot"></i>
+                        <span class="pulse-indicator"></span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Active Content Container -->
+            <div class="content-body">
+                
+                <!-- ================= DASHBOARD TAB ================= -->
+                <section id="dashboard" class="tab-pane active">
+                    <!-- AI Briefing Banner -->
+                    <div class="ai-banner glass-card animate-glow">
+                        <div class="ai-banner-content">
+                            <div class="badge-ai"><i data-lucide="bot" class="mini-bot"></i> Aura Intelligence</div>
+                            <h2>Your Daily Cognitive Briefing</h2>
+                            <p id="ai-daily-brief">Analyzing your workload... You have 3 assignments due in the next 48 hours. Aura suggests dedicating 2 hours today to "Data Structures Project" to optimize your stress curve.</p>
+                            <div class="banner-actions">
+                                <button class="action-btn primary-btn" onclick="app.setActiveTab('tasks')">View Priority Matrix</button>
+                                <button class="action-btn secondary-btn" onclick="app.suggestDailyFocus()">Generate Study Blocks</button>
+                            </div>
+                        </div>
+                        <div class="ai-banner-visual">
+                            <div class="orb-container">
+                                <div class="orb core"></div>
+                                <div class="orb outer-1"></div>
+                                <div class="orb outer-2"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- NLP Task Bar -->
+                    <div class="nlp-input-container glass-card">
+                        <div class="nlp-wrapper">
+                            <i data-lucide="pencil-line" class="nlp-icon"></i>
+                            <input type="text" id="nlp-task-input" placeholder="Just tell Aura, e.g., 'Read Biology Chapter 4 by tomorrow 3pm high priority' or 'Submit draft essay in 3 days'...">
+                            <button class="nlp-submit-btn" id="nlp-submit-btn">
+                                <span>Aura Add</span>
+                                <i data-lucide="plus"></i>
+                            </button>
+                        </div>
+                        <div class="nlp-status" id="nlp-status">
+                            <span class="nlp-status-indicator"><i data-lucide="sparkles"></i> AI NLP engine active. Write naturally.</span>
+                        </div>
+                    </div>
+
+                    <!-- Quick Metrics Grid -->
+                    <div class="metrics-grid">
+                        <div class="metric-card glass-card">
+                            <div class="metric-header">
+                                <span class="metric-title">Term CGPA</span>
+                                <i data-lucide="graduation-cap" class="text-indigo"></i>
+                            </div>
+                            <h2 class="metric-number">8.72</h2>
+                            <span class="metric-change positive"><i data-lucide="trending-up"></i> +0.24 this term</span>
+                        </div>
+                        <div class="metric-card glass-card">
+                            <div class="metric-header">
+                                <span class="metric-title">Study Streaks</span>
+                                <i data-lucide="zap" class="text-orange"></i>
+                            </div>
+                            <h2 class="metric-number">12 Days</h2>
+                            <span class="metric-change positive"><i data-lucide="flame"></i> Keep it going!</span>
+                        </div>
+                        <div class="metric-card glass-card">
+                            <div class="metric-header">
+                                <span class="metric-title">Completed Tasks</span>
+                                <i data-lucide="check-circle-2" class="text-emerald"></i>
+                            </div>
+                            <h2 class="metric-number" id="completed-tasks-count">24/30</h2>
+                            <span class="metric-change" id="completion-rate-text">80% completion rate</span>
+                        </div>
+                        <div class="metric-card glass-card">
+                            <div class="metric-header">
+                                <span class="metric-title">Focus Hours</span>
+                                <i data-lucide="hourglass" class="text-blue"></i>
+                            </div>
+                            <h2 class="metric-number" id="focus-hours-count">18.5h</h2>
+                            <span class="metric-change positive"><i data-lucide="chevron-up"></i> +4.2h this week</span>
+                        </div>
+                    </div>
+
+                    <!-- Primary Dashboard Grid -->
+                    <div class="dashboard-grid">
+                        <!-- Top AI Priorities -->
+                        <div class="dashboard-col glass-card">
+                            <div class="col-header">
+                                <h3><i data-lucide="alert-circle" class="header-icon text-indigo"></i> Aura AI Priorities</h3>
+                                <span class="badge">Dynamic Weighting</span>
+                            </div>
+                            <div class="priority-list" id="dashboard-priority-list">
+                                <!-- Generated Dynamically by App.js -->
+                            </div>
+                        </div>
+
+                        <!-- Today's Classes & Blocks -->
+                        <div class="dashboard-col glass-card">
+                            <div class="col-header">
+                                <h3><i data-lucide="calendar-range" class="header-icon text-blue"></i> Today's Schedule</h3>
+                                <button class="text-btn" onclick="app.setActiveTab('calendar')">Full Planner</button>
+                            </div>
+                            <div class="schedule-timeline" id="dashboard-schedule-list">
+                                <!-- Generated Dynamically by App.js -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================= PRIORITY MATRIX (TASKS) TAB ================= -->
+                <section id="tasks" class="tab-pane">
+                    <div class="section-header">
+                        <div>
+                            <h2>Interactive Priority Matrix</h2>
+                            <p>Tasks categorized by the Eisenhower Matrix & ranked by Aura's dynamic difficulty/urgency algorithm.</p>
+                        </div>
+                        <button class="action-btn primary-btn" id="open-add-task-modal">
+                            <i data-lucide="plus"></i> Add Manual Task
+                        </button>
+                    </div>
+
+                    <!-- NLP Input inside Tasks Tab -->
+                    <div class="nlp-input-container glass-card mb-24">
+                        <div class="nlp-wrapper">
+                            <i data-lucide="sparkles" class="nlp-icon"></i>
+                            <input type="text" id="nlp-task-input-2" placeholder="Quick add with NLP... e.g. 'Project design due Friday noon high weight'">
+                            <button class="nlp-submit-btn" id="nlp-submit-btn-2">
+                                <span>Parse & Add</span>
+                                <i data-lucide="arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Matrix Quadrants Layout -->
+                    <div class="matrix-container">
+                        <!-- Q1: Urgent & Important -->
+                        <div class="matrix-quadrant glass-card urgent-important">
+                            <div class="quadrant-header">
+                                <span class="quadrant-badge q1">Q1</span>
+                                <h4>Urgent & Important (Do First)</h4>
+                                <span class="quadrant-count" id="q1-count">0</span>
+                            </div>
+                            <div class="quadrant-tasks" id="quadrant-q1-list"></div>
+                        </div>
+
+                        <!-- Q2: Not Urgent but Important -->
+                        <div class="matrix-quadrant glass-card important-not-urgent">
+                            <div class="quadrant-header">
+                                <span class="quadrant-badge q2">Q2</span>
+                                <h4>Important & Not Urgent (Schedule)</h4>
+                                <span class="quadrant-count" id="q2-count">0</span>
+                            </div>
+                            <div class="quadrant-tasks" id="quadrant-q2-list"></div>
+                        </div>
+
+                        <!-- Q3: Urgent but Not Important -->
+                        <div class="matrix-quadrant glass-card urgent-not-important">
+                            <div class="quadrant-header">
+                                <span class="quadrant-badge q3">Q3</span>
+                                <h4>Urgent & Not Important (Delegate/Streamline)</h4>
+                                <span class="quadrant-count" id="q3-count">0</span>
+                            </div>
+                            <div class="quadrant-tasks" id="quadrant-q3-list"></div>
+                        </div>
+
+                        <!-- Q4: Not Urgent & Not Important -->
+                        <div class="matrix-quadrant glass-card not-urgent-not-important">
+                            <div class="quadrant-header">
+                                <span class="quadrant-badge q4">Q4</span>
+                                <h4>Neither (Eliminate/Minimize)</h4>
+                                <span class="quadrant-count" id="q4-count">0</span>
+                            </div>
+                            <div class="quadrant-tasks" id="quadrant-q4-list"></div>
+                        </div>
+                    </div>
+
+                    <!-- Flat Task List + Filters -->
+                    <div class="flat-list-section glass-card">
+                        <div class="list-filters-header">
+                            <h3>All Logged Responsibilities</h3>
+                            <div class="filter-controls">
+                                <select class="filter-select" id="filter-course">
+                                    <option value="all">All Courses</option>
+                                    <option value="CS-301">CS 301 (Data Structures)</option>
+                                    <option value="MATH-240">MATH 240 (Linear Algebra)</option>
+                                    <option value="WRIT-150">WRIT 150 (Creative Writing)</option>
+                                    <option value="INTERN">Internship Prep</option>
+                                    <option value="PERSONAL">Personal/Misc</option>
+                                </select>
+                                <select class="filter-select" id="filter-status">
+                                    <option value="all">All Statuses</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="completed">Completed</option>
+                                </select>
+                                <select class="filter-select" id="sort-by">
+                                    <option value="priority-score">AI Priority Score</option>
+                                    <option value="deadline">Closest Deadline</option>
+                                    <option value="weight">Highest Weight</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="flat-tasks-list" id="flat-tasks-list">
+                            <!-- Populated Dynamically -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================= PLANNER (CALENDAR) TAB ================= -->
+                <section id="calendar" class="tab-pane">
+                    <div class="section-header">
+                        <div>
+                            <h2>Weekly Smart Planner</h2>
+                            <p>Integrating classes, assignment milestones, and AI-recommended study blocks.</p>
+                        </div>
+                        <button class="action-btn secondary-btn" id="btn-suggest-study-blocks">
+                            <i data-lucide="bot-off" class="bot-icon"></i> Auto-Generate Study Blocks
+                        </button>
+                    </div>
+
+                    <div class="planner-layout">
+                        <!-- Left Sidebar: Calendars List & Quick Actions -->
+                        <div class="planner-sidebar glass-card">
+                            <h4>Calendar Layers</h4>
+                            <div class="calendar-toggles">
+                                <label class="checkbox-container">
+                                    <input type="checkbox" checked id="toggle-layer-classes">
+                                    <span class="custom-checkbox cb-class"></span>
+                                    <span class="label-txt">Academic Classes</span>
+                                </label>
+                                <label class="checkbox-container">
+                                    <input type="checkbox" checked id="toggle-layer-tasks">
+                                    <span class="custom-checkbox cb-task"></span>
+                                    <span class="label-txt">Deadlines & Deliverables</span>
+                                </label>
+                                <label class="checkbox-container">
+                                    <input type="checkbox" checked id="toggle-layer-study">
+                                    <span class="custom-checkbox cb-study"></span>
+                                    <span class="label-txt">AI Study Blocks</span>
+                                </label>
+                                <label class="checkbox-container">
+                                    <input type="checkbox" checked id="toggle-layer-extracurricular">
+                                    <span class="custom-checkbox cb-extra"></span>
+                                    <span class="label-txt">Internship & Extra</span>
+                                </label>
+                            </div>
+
+                            <hr class="divider">
+
+                            <div class="ai-milestone-planner">
+                                <h5><i data-lucide="sparkles" class="text-indigo"></i> Aura Roadmap Creator</h5>
+                                <p>Select an upcoming task to build a structured preparation timeline.</p>
+                                <select class="filter-select mb-12" id="roadmap-task-select">
+                                    <!-- Populated dynamically -->
+                                </select>
+                                <button class="action-btn primary-btn w-full" id="btn-create-roadmap">Create Roadmap</button>
+                            </div>
+                        </div>
+
+                        <!-- Right Area: Weekly Grid Schedule -->
+                        <div class="planner-grid-container glass-card">
+                            <div class="grid-header-row">
+                                <div class="grid-time-label">Time</div>
+                                <div class="grid-day-header">Mon 6/22</div>
+                                <div class="grid-day-header">Tue 6/23</div>
+                                <div class="grid-day-header active-day">Wed 6/24</div>
+                                <div class="grid-day-header">Thu 6/25</div>
+                                <div class="grid-day-header">Fri 6/26</div>
+                                <div class="grid-day-header">Sat 6/27</div>
+                                <div class="grid-day-header">Sun 6/28</div>
+                            </div>
+                            <div class="grid-body-scroll">
+                                <div class="planner-grid" id="weekly-planner-grid">
+                                    <!-- Generated Dynamically by JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================= FOCUS ROOM TAB ================= -->
+                <section id="focus" class="tab-pane">
+                    <div class="section-header">
+                        <div>
+                            <h2>Cognitive Focus Sanctuary</h2>
+                            <p>Minimize distractions, track your focus flow, and set optimal ambient audio environments.</p>
+                        </div>
+                    </div>
+
+                    <div class="focus-room-layout">
+                        <!-- Pomodoro Card -->
+                        <div class="pomodoro-card glass-card">
+                            <div class="pomodoro-timer-wrapper">
+                                <svg class="progress-ring" width="280" height="280">
+                                    <circle class="progress-ring__circle-bg" stroke="rgba(255,255,255,0.05)" stroke-width="8" fill="transparent" r="130" cx="140" cy="140"/>
+                                    <circle class="progress-ring__circle" id="pomodoro-progress" stroke="url(#timer-gradient)" stroke-width="8" fill="transparent" r="130" cx="140" cy="140"/>
+                                    <defs>
+                                        <linearGradient id="timer-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="#8b5cf6" />
+                                            <stop offset="100%" stop-color="#06b6d4" />
+                                        </linearGradient>
+                                    </defs>
+                                </svg>
+                                <div class="timer-display-inner">
+                                    <span class="timer-mode-label" id="pomodoro-mode">Focus Session</span>
+                                    <span class="timer-time" id="pomodoro-time">25:00</span>
+                                    <span class="timer-quote" id="pomodoro-quote">"Focus is a muscle. Train it."</span>
+                                </div>
+                            </div>
+
+                            <div class="timer-controls">
+                                <button class="icon-btn timer-btn" id="timer-btn-reset" title="Reset Timer"><i data-lucide="rotate-ccw"></i></button>
+                                <button class="timer-play-btn" id="timer-btn-play" title="Start Timer"><i data-lucide="play" id="play-icon"></i></button>
+                                <button class="icon-btn timer-btn" id="timer-btn-settings" title="Change Mode"><i data-lucide="settings"></i></button>
+                            </div>
+
+                            <div class="timer-presets" id="timer-presets">
+                                <button class="preset-btn active" data-time="25" data-mode="Focus">25m Focus</button>
+                                <button class="preset-btn" data-time="5" data-mode="Short Break">5m Break</button>
+                                <button class="preset-btn" data-time="15" data-mode="Long Break">15m Break</button>
+                            </div>
+                        </div>
+
+                        <!-- Audio Mixer & Tasks Sidebar -->
+                        <div class="focus-sidebar">
+                            <!-- Ambience Mixer -->
+                            <div class="ambience-mixer glass-card mb-24">
+                                <h3><i data-lucide="sliders" class="header-icon text-indigo"></i> Ambient Soundscape</h3>
+                                <p class="subtitle">Blend lofi, rain, and cafe noises. Fully client-synthesized.</p>
+                                
+                                <div class="audio-tracks">
+                                    <!-- Track 1 -->
+                                    <div class="audio-track-row">
+                                        <div class="track-info">
+                                            <i data-lucide="music"></i>
+                                            <span>Lofi Beats</span>
+                                        </div>
+                                        <div class="track-controls">
+                                            <button class="track-toggle-btn" id="toggle-track-lofi"><i data-lucide="play"></i></button>
+                                            <input type="range" class="volume-slider" id="volume-track-lofi" min="0" max="100" value="50">
+                                        </div>
+                                    </div>
+                                    <!-- Track 2 -->
+                                    <div class="audio-track-row">
+                                        <div class="track-info">
+                                            <i data-lucide="cloud-rain"></i>
+                                            <span>Rain & Thunder</span>
+                                        </div>
+                                        <div class="track-controls">
+                                            <button class="track-toggle-btn" id="toggle-track-rain"><i data-lucide="play"></i></button>
+                                            <input type="range" class="volume-slider" id="volume-track-rain" min="0" max="100" value="50">
+                                        </div>
+                                    </div>
+                                    <!-- Track 3 -->
+                                    <div class="audio-track-row">
+                                        <div class="track-info">
+                                            <i data-lucide="coffee"></i>
+                                            <span>Bustling Cafe</span>
+                                        </div>
+                                        <div class="track-controls">
+                                            <button class="track-toggle-btn" id="toggle-track-cafe"><i data-lucide="play"></i></button>
+                                            <input type="range" class="volume-slider" id="volume-track-cafe" min="0" max="100" value="50">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mixer-footer-note">
+                                    <span>* Synthesized ambient frequencies (uses Web Audio API).</span>
+                                </div>
+                            </div>
+
+                            <!-- Focus Room Task selector -->
+                            <div class="focus-task-select-card glass-card">
+                                <h3><i data-lucide="check-square" class="header-icon text-emerald"></i> Active Focus Task</h3>
+                                <p class="subtitle">Select the responsibility you are currently working on.</p>
+                                <select class="filter-select w-full mt-8 mb-12" id="active-focus-task-select">
+                                    <option value="none">General Study / No Task Selected</option>
+                                    <!-- Populated by tasks state -->
+                                </select>
+                                <div class="active-task-detail-preview hidden" id="focus-task-detail-preview">
+                                    <div class="active-task-line">
+                                        <span class="active-badge urgent" id="focus-task-urgency">Urgent</span>
+                                        <span class="active-task-sub">CS 301</span>
+                                    </div>
+                                    <h4 id="focus-task-title">Implement Red-Black Tree Rotation</h4>
+                                    <p id="focus-task-deadline">Due tomorrow, 5:00 PM</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================= ANALYTICS TAB ================= -->
+                <section id="analytics" class="tab-pane">
+                    <div class="section-header">
+                        <div>
+                            <h2>Academic & Productivity Analytics</h2>
+                            <p>Quantify your study habits and monitor your performance insights calculated by Aura.</p>
+                        </div>
+                    </div>
+
+                    <div class="analytics-layout">
+                        <!-- Chart 1: Focus Hours Breakdown -->
+                        <div class="chart-card glass-card">
+                            <div class="chart-header">
+                                <h4>Focus Study Hours (Weekly trend)</h4>
+                                <span class="chart-badge">Line Chart</span>
+                            </div>
+                            <div class="chart-wrapper">
+                                <canvas id="focus-hours-chart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Chart 2: Task Completion by Subject -->
+                        <div class="chart-card glass-card">
+                            <div class="chart-header">
+                                <h4>Tasks by Subject & Completion</h4>
+                                <span class="chart-badge">Bar Chart</span>
+                            </div>
+                            <div class="chart-wrapper">
+                                <canvas id="tasks-subject-chart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Chart 3: GPA Trend by Semester -->
+                        <div class="chart-card glass-card">
+                            <div class="chart-header">
+                                <h4>CGPA Cumulative & Semester Trend</h4>
+                                <span class="chart-badge">Multi-Line Chart</span>
+                            </div>
+                            <div class="chart-wrapper">
+                                <canvas id="gpa-trend-chart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Focus Metrics Summary -->
+                        <div class="insights-summary-card glass-card">
+                            <h4><i data-lucide="sparkles" class="text-indigo mr-8"></i> Aura Productivity Insights</h4>
+                            <ul class="insights-list">
+                                <li>
+                                    <div class="insight-icon"><i data-lucide="check" class="text-emerald"></i></div>
+                                    <div class="insight-body">
+                                        <h5>High-Efficiency Windows</h5>
+                                        <p>Your highest study task completion rate occurs on <strong>Tuesdays & Thursdays between 2:00 PM - 5:00 PM</strong>.</p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="insight-icon"><i data-lucide="alert-triangle" class="text-orange"></i></div>
+                                    <div class="insight-body">
+                                        <h5>Stress Warning</h5>
+                                        <p>Data Structures has accumulated <strong>3 high-weight tasks</strong> in the next 5 days. Aura recommends setting a 25m Focus session block today.</p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="insight-icon"><i data-lucide="star" class="text-blue"></i></div>
+                                    <div class="insight-body">
+                                        <h5>Subject Strength</h5>
+                                        <p>You have a <strong>95% completion rate</strong> in Linear Algebra. Creative Writing is lagging behind at <strong>50%</strong>. Allocate more time to Creative Writing drafts.</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+
+        <!-- Right Side AI Copilot Sidebar -->
+        <aside class="copilot-sidebar glass" id="copilot-sidebar">
+            <div class="copilot-header">
+                <div class="copilot-brand">
+                    <div class="bot-avatar animate-pulse">
+                        <i data-lucide="bot"></i>
+                    </div>
+                    <div>
+                        <h4>Aura AI Copilot</h4>
+                        <span class="copilot-status">Online • Ready to optimize</span>
+                    </div>
+                </div>
+                <button class="icon-btn glass-btn close-copilot-btn" id="close-copilot-btn" title="Close Sidebar">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+
+            <!-- Chat Logs Area -->
+            <div class="copilot-chat-body" id="copilot-chat-body">
+                <div class="chat-message bot">
+                    <div class="message-content">
+                        Hello, Alex! I am Aura, your personal academic co-pilot. I have synchronized your syllabus deliverables, class schedule, and focus metrics. 
+                        <br><br>
+                        Here are some things I can assist with:
+                        <ul class="chat-suggestions">
+                            <li onclick="app.sendCopilotQuery('What should I focus on today?')">What should I focus on today?</li>
+                            <li onclick="app.sendCopilotQuery('How is my stress level?')">How is my stress level?</li>
+                            <li onclick="app.sendCopilotQuery('Generate a study plan')">Generate a study plan</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Inputs -->
+            <div class="copilot-chat-footer">
+                <div class="chat-input-wrapper">
+                    <input type="text" id="copilot-chat-input" placeholder="Ask Aura anything...">
+                    <button class="chat-send-btn" id="copilot-send-btn">
+                        <i data-lucide="send"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Manual Add Task Modal -->
+    <div class="modal-backdrop hidden" id="add-task-modal">
+        <div class="modal-content glass glass-card">
+            <div class="modal-header">
+                <h3>Create New Academic Task</h3>
+                <button class="icon-btn glass-btn" id="close-task-modal"><i data-lucide="x"></i></button>
+            </div>
+            <form id="add-task-form">
+                <div class="form-group">
+                    <label for="task-title">Task / Responsibility Title</label>
+                    <input type="text" id="task-title" required placeholder="e.g. Read Physics Chapter 2, Internship application, Math HW 4">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label for="task-course">Category / Course</label>
+                        <select id="task-course" required>
+                            <option value="CS-301">CS 301 (Data Structures)</option>
+                            <option value="MATH-240">MATH 240 (Linear Algebra)</option>
+                            <option value="WRIT-150">WRIT 150 (Creative Writing)</option>
+                            <option value="INTERN">Internship Prep</option>
+                            <option value="PERSONAL">Personal/Misc</option>
+                        </select>
+                    </div>
+                    <div class="form-group half">
+                        <label for="task-deadline">Deadline Date & Time</label>
+                        <input type="datetime-local" id="task-deadline" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label for="task-importance">Importance (1-5 Stars)</label>
+                        <input type="number" id="task-importance" min="1" max="5" value="3" required>
+                    </div>
+                    <div class="form-group half">
+                        <label for="task-difficulty">Difficulty (1-5 Scale)</label>
+                        <input type="number" id="task-difficulty" min="1" max="5" value="3" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label for="task-duration">Estimated Duration (hours)</label>
+                        <input type="number" id="task-duration" min="0.5" max="12" step="0.5" value="2" required>
+                    </div>
+                    <div class="form-group half">
+                        <label for="task-quadrant">Eisenhower Quadrant</label>
+                        <select id="task-quadrant" required>
+                            <option value="q1">Q1: Urgent & Important</option>
+                            <option value="q2" selected>Q2: Not Urgent & Important</option>
+                            <option value="q3">Q3: Urgent & Not Important</option>
+                            <option value="q4">Q4: Not Urgent & Not Important</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="action-btn secondary-btn" id="btn-cancel-modal">Cancel</button>
+                    <button type="submit" class="action-btn primary-btn">Add to Matrix</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Custom Application Logic JS -->
+    <script src="app.js"></script>
+</body>
+</html>
